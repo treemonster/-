@@ -1,3 +1,8 @@
+/**
+ 前端代码调试器 v1.0
+ code by treemonster
+ mailto: admin@xdelve.com
+ */
 setTimeout(function(){
   var conf={{config}};
   var time=new Date;
