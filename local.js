@@ -1,11 +1,12 @@
 /**
- 前端代码调试器 v1.0
+ 前端代码调试器 v1.0.1
  code by treemonster
  mailto: admin@xdelve.com
  */
 setTimeout(function(){
   var conf={{config}};
   var time=new Date;
+  time.setTime(conf.server_time);
   var iframe=document.createElement('iframe');
   iframe.name=iframe.id='sdanviorhevberbvebrv';
   var div=document.createElement('div');

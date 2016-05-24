@@ -1,5 +1,5 @@
 /**
- 前端代码调试器 v1.0
+ 前端代码调试器 v1.0.1
  code by treemonster
  mailto: admin@xdelve.com
  */
@@ -35,7 +35,7 @@ class RemoteDebuger{
     var list=queue[key]||[];
     list=JSON.parse(JSON.stringify(list));
     for(var i=list.length;i--;){
-      if(lasttime<new Date(list[i].time).getTime())continue;
+      if(lasttime<list[i].time)continue;
       list.splice(0,i+1);
       break;
     }
@@ -79,7 +79,7 @@ class RemoteDebuger{
       for(key in queue){
         msg=queue[key];
         for(let i=msg.length;i--;){
-          if((new Date).getTime()-parseInt(msg[i].time)<1000*60)continue;
+          if((new Date).getTime()-msg[i].time<1000*60)continue;
           msg.splice(0,i);
           break;
         }
@@ -124,6 +124,7 @@ class RemoteDebuger{
         data: script.replace(/\{\{config\}\}/,JSON.stringify({
           pull_url: debuger.config.host+'/code/pull?key='+params.key,
           push_url: debuger.config.host+'/code/push?key='+params.key,
+          server_time: (new Date).getTime(),
           win_cb: debuger.config.wincb,
         })),
       };
@@ -152,7 +153,7 @@ class RemoteDebuger{
 
 RemoteDebuger.run({
   port: 890,
-  host: 'http://localhost:890',
+  host: 'http://xdelve.com:890',
 
 });
 
