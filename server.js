@@ -1,5 +1,5 @@
 /**
- 前端代码调试器 v1.0.1
+ 前端代码调试器 v1.0.2
  code by treemonster
  mailto: admin@xdelve.com
  */
@@ -106,14 +106,24 @@ class RemoteDebuger{
   // 提交代码
   _code_pushAction(debuger,params){
     debuger.pushCode(params.key,params.code);
+    debuger.pushCode(params.key,'$(\'form[push_uid="'+params.push_uid+'"]\').remove()');
   }
 
   // 拉取代码
   _code_pullAction(debuger,params){
-    return {
-      isJs: true,
-      data: debuger.config.wincb+'('+JSON.stringify(debuger.pullCode(params.key,params.lasttime||0))+')' ,
-    };
+    var defer=Promise.defer();
+    (function loop(begintime){
+      var data=debuger.pullCode(params.key,params.lasttime||0);
+      var timeout=(new Date-begintime)>debuger.config.longpolling_timeout;
+      if(data.length || timeout){
+        defer.resolve({
+          isJs: true,
+          data: debuger.config.wincb+'('+JSON.stringify(data)+')',
+        });
+      }
+      if(!timeout)setTimeout(function(){ loop(begintime); },50);
+    })(new Date);
+    return defer.promise;
   }
 
   // 前端代码工具，通过script标签引入页面
@@ -124,7 +134,9 @@ class RemoteDebuger{
         data: script.replace(/\{\{config\}\}/,JSON.stringify({
           pull_url: debuger.config.host+'/code/pull?key='+params.key,
           push_url: debuger.config.host+'/code/push?key='+params.key,
+          longpolling_timeout: debuger.config.longpolling_timeout,
           server_time: (new Date).getTime(),
+          server_uid: ((new Date).getTime()+Math.random()).toString(36),
           win_cb: debuger.config.wincb,
         })),
       };
@@ -141,19 +153,12 @@ class RemoteDebuger{
     });
   }
 
-  _testAction(){
-    return {
-      data:'<meta charset=utf-8 /><form method=POST action="/code/push?key=aa&code=alert(2)"><input type=submit><textarea name=aaa>xxx</textarea></form>',
-    };
-  }
-
-
-
 }
 
 RemoteDebuger.run({
   port: 890,
   host: 'http://xdelve.com:890',
+  longpolling_timeout: 5000,
 
 });
 
